@@ -84,6 +84,8 @@ Target "CreateNuGet" (fun _ ->
           match appType with
           | "nuget" -> getBuildParamOrDefault "nugetkey" ""
           | _ ->  ""
+          
+      let nugetPackageName = getBuildParamOrDefault "nugetPackageName" appName
       let nugetDoPublish = nugetAccessKey.Equals "" |> not
       let nugetPublishUrl = getBuildParamOrDefault "nugetserver" "https://nuget.org"
 
@@ -92,7 +94,7 @@ Target "CreateNuGet" (fun _ ->
           {app with
               NoPackageAnalysis = true
               Authors = appAuthors
-              Project = appName
+              Project = nugetPackageName
               Description = appDescription
               Version = release.NugetVersion
               Summary = appSummary

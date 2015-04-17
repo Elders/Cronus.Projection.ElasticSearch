@@ -29,7 +29,7 @@ SET TARGET="CreateNuget"
 
 IF NOT [%1]==[] (set TARGET="%1")
 
-SET SUMMARY="Elders.Cronus.Projection.ElasticSearch"
-SET DESCRIPTION="Elders.Cronus.Projection.ElasticSearch"
+SET SUMMARY="Elders.Cronus.Projections.ElasticSearch"
+SET DESCRIPTION="Elders.Cronus.Projections.ElasticSearch"
 
 %FAKE% "build.fsx" "target=%TARGET%"    appName=Elders.Cronus.Projections.ElasticSearch    appType=msi appSummary=%SUMMARY% appDescription=%DESCRIPTION%
