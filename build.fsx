@@ -106,9 +106,20 @@ Target "CreateNuGet" (fun _ ->
           }) nuspecFile
 )
 
+Target "Release" (fun _ ->
+    StageAll ""
+    let notes = String.concat "; " release.Notes
+    Commit "" (sprintf "%s" notes)
+    Branches.push ""
+
+    Branches.tag "" release.NugetVersion
+    Branches.pushTag "" "origin" release.NugetVersion
+)
+
 "Clean"
     ==> "RestorePackages"
     ==> "Build"
     ==> "CreateNuGet"
+    ==> "Release"
 
 RunParameterTargetOrDefault "target" "Build"
