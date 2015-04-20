@@ -5,6 +5,12 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Projections.ElasticSearch", "Elders.Cronus.Projections.ElasticSearch\Elders.Cronus.Projections.ElasticSearch.csproj", "{EE57AE0B-298A-48D7-BA20-A5E9FC912E98}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{DCC16852-6C1C-4EE6-8869-E080786081F0}"
+	ProjectSection(SolutionItems) = preProject
+		..\build.cmd = ..\build.cmd
+		..\build.fsx = ..\build.fsx
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

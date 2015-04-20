@@ -9,7 +9,9 @@ open Fake.FSharpFormatting
 open Fake.AssemblyInfoFile
 open Fake.ReleaseNotesHelper
 
-type System.String with member x.contains (comp:System.StringComparison) str = x.IndexOf(str,comp) >= 0
+type System.String with member x.endswith (comp:System.StringComparison) str =
+                          let newVal = x.Remove(x.Length-4)
+                          newVal.EndsWith(str, comp)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  BEGIN EDIT
@@ -28,7 +30,8 @@ let releaseNotes = @"./src/" @@ appName @@ @"RELEASE_NOTES.md"
 let release = LoadReleaseNotes releaseNotes
 
 let nuget = environVar "NUGET"
-let nugetOutDir = "./bin/nuget" @@ appName
+let nugetWorkDir = "./bin/nuget" @@ appName
+let nugetOutDir = nugetWorkDir @@ "lib" @@ "net45-full"
 
 Target "Clean" (fun _ -> CleanDirs [buildDir; nugetOutDir;])
 
@@ -51,40 +54,28 @@ Target "Build" (fun _ ->
       |> Log "Build-Output: "
 )
 
-Target "CreateNuGet" (fun _ ->
+Target "CreateWebNuGet" (fun _ ->
   let packages = [appName, appType]
   for appName,appType in packages do
 
       let nugetOutArtifactsDir = nugetOutDir @@ "Artifacts"
       CleanDir nugetOutArtifactsDir
 
-      //  Exclude libraries which are part of the packages.config file only when nuget package is created.
-      let nugetPackagesFile = "./src/" @@ appName @@ "packages.config"
-      let nugetDependenciesFlat =
-        match fileExists nugetPackagesFile with
-        | true -> getDependencies nugetPackagesFile |> List.unzip |> fst
-        | _ -> []
-
-      let excludePaths (pathsToExclude : string list) (path: string) = pathsToExclude |> List.exists (path.contains StringComparison.OrdinalIgnoreCase) |> not
-      let exclude = excludePaths ("CodeContracts" :: nugetDependenciesFlat)
-
       //  Copy the build artifacts to the nuget pick dir
       match appType with
       | "web" -> CopyDir nugetOutArtifactsDir (buildDir @@ "_PublishedWebsites" @@ appName) allFiles
-      | "nuget" -> CopyDir nugetOutDir buildDir exclude
       | _ -> CopyDir nugetOutArtifactsDir buildDir allFiles
 
       //  Copy the deployment files if any to the nuget pick dir.
       let depl = @".\src\" @@ appName @@ @".\deployment\"
       if TestDir depl then XCopy depl nugetOutDir
 
-
       let nuspecFile = appName + ".nuspec"
       let nugetAccessKey =
           match appType with
           | "nuget" -> getBuildParamOrDefault "nugetkey" ""
           | _ ->  ""
-          
+
       let nugetPackageName = getBuildParamOrDefault "nugetPackageName" appName
       let nugetDoPublish = nugetAccessKey.Equals "" |> not
       let nugetPublishUrl = getBuildParamOrDefault "nugetserver" "https://nuget.org"
@@ -103,10 +94,55 @@ Target "CreateNuGet" (fun _ ->
               Publish = nugetDoPublish
               PublishUrl = nugetPublishUrl
               ToolPath = nuget
-              OutputPath = nugetOutDir
-              WorkingDir = nugetOutDir
+              OutputPath = nugetWorkDir
+              WorkingDir = nugetWorkDir
           }) nuspecFile
 )
+
+Target "CreateLibraryNuGet" (fun _ ->
+  let packages = [appName, appType]
+  for appName,appType in packages do
+
+      //  Exclude libraries which are part of the packages.config file only when nuget package is created.
+      let nugetPackagesFile = "./src/" @@ appName @@ "packages.config"
+      let nugetDependenciesFlat =
+        match fileExists nugetPackagesFile with
+        | true -> getDependencies nugetPackagesFile |> List.unzip |> fst
+        | _ -> []
+
+      let excludePaths (pathsToExclude : string list) (path: string) = pathsToExclude |> List.exists (path.endswith StringComparison.OrdinalIgnoreCase)|> not
+      let exclude = excludePaths nugetDependenciesFlat
+      CopyDir nugetOutDir buildDir exclude
+
+      let nuspecFile = appName + ".nuspec"
+      let nugetAccessKey = getBuildParamOrDefault "nugetkey" ""
+      let nugetPackageName = getBuildParamOrDefault "nugetPackageName" appName
+      let nugetDoPublish = nugetAccessKey.Equals "" |> not
+      let nugetPublishUrl = getBuildParamOrDefault "nugetserver" "https://nuget.org"
+      let dep = getDependencies nugetPackagesFile
+      Console.WriteLine dep
+
+      //  Create/Publish the nuget package
+      NuGet (fun app ->
+          {app with
+              NoPackageAnalysis = true
+              Authors = appAuthors
+              Project = nugetPackageName
+              Description = appDescription
+              Version = release.NugetVersion
+              Summary = appSummary
+              ReleaseNotes = release.Notes |> toLines
+              Dependencies = dep
+              AccessKey = nugetAccessKey
+              Publish = nugetDoPublish
+              PublishUrl = nugetPublishUrl
+              ToolPath = nuget
+              OutputPath = nugetWorkDir
+              WorkingDir = nugetWorkDir
+          }) nuspecFile
+)
+
+
 
 Target "Release" (fun _ ->
     StageAll ""
@@ -121,7 +157,8 @@ Target "Release" (fun _ ->
 "Clean"
     ==> "RestorePackages"
     ==> "Build"
-    ==> "CreateNuGet"
+    =?> ("CreateLibraryNuGet", appType.Equals "nuget")
+    =?> ("CreateWebNuGet", appType.Equals "web")
     ==> "Release"
 
 RunParameterTargetOrDefault "target" "Build"
