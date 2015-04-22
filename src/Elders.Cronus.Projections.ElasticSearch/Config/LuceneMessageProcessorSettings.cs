@@ -40,7 +40,6 @@ namespace Elders.Cronus.Projections.ElasticSearch.Config
                     }
                 }
                 projectionsApi.ConfigureMappings();
-                var asd = processor.GetSubscriptions().Single();
                 return processor;
             };
             builder.Container.RegisterSingleton<IMessageProcessor>(() => messageHandlerProcessorFactory(), builder.Name);

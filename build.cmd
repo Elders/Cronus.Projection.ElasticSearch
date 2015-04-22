@@ -25,7 +25,7 @@ IF NOT EXIST %TOOLS_PATH%\NuGet md %TOOLS_PATH%\NuGet
 echo Downloading latest version of Fake.exe...
 %NUGET% "install" "FAKE" "-OutputDirectory" "%TOOLS_PATH%" "-ExcludeVersion" "-Prerelease"
 
-SET TARGET="CreateNuget"
+SET TARGET="Build"
 
 IF NOT [%1]==[] (set TARGET="%1")
 
