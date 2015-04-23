@@ -19,6 +19,10 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
             ExpressionBuilder = new StringBuilder();
         }
 
+        public QueryIndex Index { get; private set; }
+
+        public StringBuilder ExpressionBuilder { get; private set; }
+
         public void AttachIndex(string index)
         {
             Index = new QueryIndex(index);
@@ -29,8 +33,7 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
             ExpressionBuilder.Append(expressionPart);
         }
 
-        public QueryIndex Index { get; private set; }
-        public StringBuilder ExpressionBuilder { get; private set; }
+
 
         public string FormatExpression()
         {
@@ -124,9 +127,22 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
 
             return expression;
         }
+
+        private bool shouldHandleAggregateId = false;
+        private bool isProcessingMember = false;
+
         protected override Expression VisitMemberExpression(MemberExpression expression)
         {
+            var aggregateIdProperty = expression.Member as PropertyInfo;
+            shouldHandleAggregateId =
+                isProcessingMember == false &&
+                aggregateIdProperty != null &&
+                typeof(IAggregateRootId).IsAssignableFrom(aggregateIdProperty.PropertyType);
+
+            isProcessingMember = expression.Expression is MemberExpression;
+
             VisitExpression(expression.Expression);
+
             var contractOrder = expression.Member.CustomAttributes
                 .Where(attr => typeof(DataMemberAttribute).IsAssignableFrom(attr.AttributeType))
                 .SingleOrDefault();
@@ -135,21 +151,15 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
                 ? expression.Member.Name
                 : contractOrder.NamedArguments.Where(arg => arg.MemberName == "Order").Select(x => x.TypedValue.Value).Single();
 
-
-
             luceneExpression.Append("." + memberName);
 
-            var propertyInfo = expression.Member as PropertyInfo;
-            if (propertyInfo != null)
+            if (shouldHandleAggregateId)
             {
-                if (typeof(IAggregateRootId).IsAssignableFrom(propertyInfo.PropertyType))
-                {
-                    var rawIdIndex = propertyInfo.PropertyType
-                        .GetAllMembers().Where(x => x.Name == "RawId")
-                        .Single().GetAttrubuteValue<DataMemberAttribute, int>(attr => attr.Order)
-                        .ToString();
-                    luceneExpression.Append(string.Format(".{0}.$value", rawIdIndex));
-                }
+                var rawIdIndex = aggregateIdProperty.PropertyType
+                    .GetAllMembers().Where(x => x.Name == "RawId")
+                    .Single().GetAttrubuteValue<DataMemberAttribute, int>(attr => attr.Order)
+                    .ToString();
+                luceneExpression.Append(string.Format(".{0}.$value", rawIdIndex));
             }
 
             return expression;

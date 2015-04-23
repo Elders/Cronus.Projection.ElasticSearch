@@ -1,3 +1,6 @@
+#### 0.1.4 - 23.04.2015
+* Enable query over AggregateRootId properties
+
 #### 0.1.3 - 22.04.2015
 * Fix issue with configuration
 
