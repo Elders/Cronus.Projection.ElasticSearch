@@ -33,8 +33,6 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
             ExpressionBuilder.Append(expressionPart);
         }
 
-
-
         public string FormatExpression()
         {
             return "+(" + ExpressionBuilder.ToString() + ")";
@@ -128,20 +126,17 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
             return expression;
         }
 
-        private bool shouldHandleAggregateId = false;
-        private bool isProcessingMember = false;
 
-        protected override Expression VisitMemberExpression(MemberExpression expression)
+        private Expression VisitMemberExpressionInternal(MemberExpression expression)
         {
-            var aggregateIdProperty = expression.Member as PropertyInfo;
-            shouldHandleAggregateId =
-                isProcessingMember == false &&
-                aggregateIdProperty != null &&
-                typeof(IAggregateRootId).IsAssignableFrom(aggregateIdProperty.PropertyType);
-
-            isProcessingMember = expression.Expression is MemberExpression;
-
-            VisitExpression(expression.Expression);
+            if (expression.Expression is MemberExpression)
+            {
+                VisitMemberExpressionInternal(expression.Expression as MemberExpression);
+            }
+            else
+            {
+                VisitExpression(expression.Expression);
+            }
 
             var contractOrder = expression.Member.CustomAttributes
                 .Where(attr => typeof(DataMemberAttribute).IsAssignableFrom(attr.AttributeType))
@@ -152,6 +147,17 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
                 : contractOrder.NamedArguments.Where(arg => arg.MemberName == "Order").Select(x => x.TypedValue.Value).Single();
 
             luceneExpression.Append("." + memberName);
+            return expression;
+        }
+
+        protected override Expression VisitMemberExpression(MemberExpression expression)
+        {
+            var aggregateIdProperty = expression.Member as PropertyInfo;
+            var shouldHandleAggregateId =
+                aggregateIdProperty != null &&
+                typeof(IAggregateRootId).IsAssignableFrom(aggregateIdProperty.PropertyType);
+
+            VisitMemberExpressionInternal(expression);
 
             if (shouldHandleAggregateId)
             {
@@ -161,7 +167,6 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
                     .ToString();
                 luceneExpression.Append(string.Format(".{0}.$value", rawIdIndex));
             }
-
             return expression;
         }
 
