@@ -171,7 +171,7 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
                 typeof(IAggregateRootId).IsAssignableFrom(aggregateIdProperty.PropertyType) && aggregateIdProperty.PropertyType.IsInterface == false;
             reduced = true;
             if (canReduce)
-                return VisitExpression(new ArExpression(expression.Expression, aggregateIdProperty.PropertyType));
+                return VisitExpression(new ArExpression(expression, aggregateIdProperty.PropertyType));
             else
                 return VisitMemberExpressionInternal(expression);
         }

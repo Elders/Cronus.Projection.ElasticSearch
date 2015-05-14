@@ -130,7 +130,14 @@ namespace Elders.Cronus.Projections.ElasticSearch
             var body = json.Serialize(@event);
             request.AddParameter("text/json", body, ParameterType.RequestBody);
             var response = client.Execute(request);
-            return response.StatusCode == System.Net.HttpStatusCode.Created;
+            var isSuccess = response.StatusCode == System.Net.HttpStatusCode.Created;
+            if (isSuccess == false)
+            {
+                string error = "Unable to index event in Projections." + Environment.NewLine +
+                    response.StatusCode + " | " + response.ErrorMessage;
+                throw new Exception(error);
+            }
+            return isSuccess;
         }
 
         public IEnumerable<SearchableEvent> MultiSearch(RestRequest request)
