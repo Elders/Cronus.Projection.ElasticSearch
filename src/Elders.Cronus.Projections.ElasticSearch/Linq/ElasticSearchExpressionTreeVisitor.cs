@@ -142,34 +142,68 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
                 .Where(attr => typeof(DataMemberAttribute).IsAssignableFrom(attr.AttributeType))
                 .SingleOrDefault();
 
+            if (contractOrder == null)
+            {
+                string internalFieldName = expression.Member.Name + "Internal";
+                var internalField = expression.Member.DeclaringType.GetMember(internalFieldName, BindingFlags.NonPublic | BindingFlags.Instance).SingleOrDefault();
+                contractOrder = internalField.CustomAttributes
+                                                .Where(attr => typeof(DataMemberAttribute).IsAssignableFrom(attr.AttributeType))
+                                                .SingleOrDefault();
+            }
+
             var memberName = contractOrder == null
                 ? expression.Member.Name
                 : contractOrder.NamedArguments.Where(arg => arg.MemberName == "Order").Select(x => x.TypedValue.Value).Single();
-
+            var propertyInfo = expression.Member as PropertyInfo;
             luceneExpression.Append("." + memberName);
+            if (propertyInfo != null && typeof(byte[]).IsAssignableFrom(propertyInfo.PropertyType))//Simple type
+                luceneExpression.Append(".$value");
+
+
             return expression;
         }
 
+        bool reduced = false;
         protected override Expression VisitMemberExpression(MemberExpression expression)
         {
             var aggregateIdProperty = expression.Member as PropertyInfo;
-            var shouldHandleAggregateId =
-                aggregateIdProperty != null &&
-                typeof(IAggregateRootId).IsAssignableFrom(aggregateIdProperty.PropertyType);
-
-            VisitMemberExpressionInternal(expression);
-
-            if (shouldHandleAggregateId)
-            {
-                var rawIdIndex = aggregateIdProperty.PropertyType
-                    .GetAllMembers().Where(x => x.Name == "RawId")
-                    .Single().GetAttrubuteValue<DataMemberAttribute, int>(attr => attr.Order)
-                    .ToString();
-                luceneExpression.Append(string.Format(".{0}.$value", rawIdIndex));
-            }
-            return expression;
+            var canReduce = aggregateIdProperty != null && reduced == false &&
+                typeof(IAggregateRootId).IsAssignableFrom(aggregateIdProperty.PropertyType) && aggregateIdProperty.PropertyType.IsInterface == false;
+            reduced = true;
+            if (canReduce)
+                return VisitExpression(new ArExpression(expression.Expression, aggregateIdProperty.PropertyType));
+            else
+                return VisitMemberExpressionInternal(expression);
         }
 
+
+        private Expression VisitArExpression(ArExpression expression)
+        {
+            var exp = base.VisitExpression(expression.Expression);
+
+            var rawIdIndex = expression.ArTyoe
+                .GetAllMembers().Where(x => x.Name == "RawId")
+                .Single().GetAttrubuteValue<DataMemberAttribute, int>(attr => attr.Order)
+                .ToString();
+
+            luceneExpression.Append(string.Format(".{0}.$value", rawIdIndex));
+
+            return expression;
+        }
+        public class ArExpression : Expression
+        {
+            public Expression Expression { get; private set; }
+            public Type ArTyoe { get; private set; }
+            public ArExpression(Expression ex, Type arType)
+            {
+                Expression = ex;
+                ArTyoe = arType;
+            }
+            public override Type Type { get { return Expression.Type; } }
+            public override ExpressionType NodeType { get { return Expression.NodeType; } }
+            public override bool CanReduce { get { return Expression.CanReduce; } }
+            public override Expression Reduce() { return Expression.Reduce(); }
+        }
         protected override MemberBinding VisitMemberAssignment(MemberAssignment memberAssigment)
         {
             return base.VisitMemberAssignment(memberAssigment);
@@ -212,7 +246,10 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
 
         public override Expression VisitExpression(Expression expression)
         {
-            return base.VisitExpression(expression);
+            if (expression is ArExpression)
+                return VisitArExpression(expression as ArExpression);
+            else
+                return base.VisitExpression(expression);
         }
 
         protected override Expression VisitExtensionExpression(ExtensionExpression expression)
@@ -232,6 +269,11 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
                 var aggregateId = expression.Value as IAggregateRootId;
                 var aggregateIdAsBase64String = System.Convert.ToBase64String(aggregateId.RawId);
                 luceneExpression.Append(string.Format("(\"{0}\")", aggregateIdAsBase64String));
+            }
+            else if (typeof(byte[]).IsAssignableFrom(expression.Type))
+            {
+                var valueAsBase64String = System.Convert.ToBase64String(expression.Value as byte[]);
+                luceneExpression.Append(string.Format("(\"{0}\")", valueAsBase64String));
             }
             else
             {
@@ -301,7 +343,18 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
                     VisitExpression(expression.Operand);
                     luceneExpression.Append(")");
                     break;
-
+                case ExpressionType.TypeAs:
+                case ExpressionType.Convert:
+                    var memberExp = expression.Operand as MemberExpression;
+                    if (memberExp != null && reduced == false)
+                    {
+                        if (typeof(IAggregateRootId).IsAssignableFrom(expression.Type))
+                            VisitExpression(new ArExpression(expression.Operand, expression.Type));
+                        return expression;
+                    }
+                    else
+                        base.VisitExpression(expression.Operand);
+                    break;
                 default:
                     base.VisitUnaryExpression(expression);
                     break;
@@ -309,6 +362,8 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
 
             return expression;
         }
+
+
 
         protected override TResult VisitUnhandledItem<TItem, TResult>(TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
         {

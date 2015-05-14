@@ -1,3 +1,6 @@
+#### 0.2.0 - 14.05.2015
+* Add support for cast and convert
+
 #### 0.1.5 - 30.04.2015
 * Fix issue when query over AggregateRootId properties
 
