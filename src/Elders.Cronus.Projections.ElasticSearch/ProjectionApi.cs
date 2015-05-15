@@ -134,7 +134,8 @@ namespace Elders.Cronus.Projections.ElasticSearch
             if (isSuccess == false)
             {
                 string error = "Unable to index event in Projections." + Environment.NewLine +
-                    response.StatusCode + " | " + response.ErrorMessage;
+                    "Request: " + body + Environment.NewLine +
+                    "Response: " + response.StatusCode + " " + response.ErrorMessage;
                 throw new Exception(error);
             }
             return isSuccess;

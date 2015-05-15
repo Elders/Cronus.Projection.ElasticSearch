@@ -1,3 +1,6 @@
+#### 0.2.2 - 15.05.2015
+* Output the request body when error occures while indexing
+
 #### 0.2.1 - 14.05.2015
 * Fix issue when query over AggregateRootId properties
 
