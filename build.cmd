@@ -39,4 +39,4 @@ IF NOT [%1]==[] (set TARGET="%1")
 SET SUMMARY="Elders.Cronus.Projections.ElasticSearch"
 SET DESCRIPTION="Elders.Cronus.Projections.ElasticSearch"
 
-%FAKE% %NYX% "target=%TARGET%"  appName=Elders.Cronus.Projections.ElasticSearch appType=nuget appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetPackageName=Cronus.Projections.ElasticSearch
+%FAKE% %NYX% "target=%TARGET%"  appName=Elders.Cronus.Projections.ElasticSearch appType=lib appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetPackageName=Cronus.Projections.ElasticSearch

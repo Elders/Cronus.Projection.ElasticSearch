@@ -1,3 +1,9 @@
+#### 0.3.2 - 25.05.2015
+* Republish: Version for Cronus 2.*
+
+#### 0.3.1 - 25.05.2015
+* Republish: Version for Cronus 2.*
+
 #### 0.3.0 - 25.05.2015
 * Version for Cronus 2.*
 
