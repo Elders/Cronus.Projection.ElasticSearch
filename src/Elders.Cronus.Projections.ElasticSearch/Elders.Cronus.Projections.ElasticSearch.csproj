@@ -35,9 +35,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elders.Cronus, Version=1.2.17.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Elders.Cronus, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Cronus.1.2.17\lib\net45-full\Elders.Cronus.dll</HintPath>
+      <HintPath>..\packages\Cronus.2.0.0\lib\net45-full\Elders.Cronus.dll</HintPath>
     </Reference>
     <Reference Include="Elders.Cronus.DomainModeling, Version=1.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -47,10 +47,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Multithreading.Scheduler.1.0.1\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
     </Reference>
-    <Reference Include="Elders.Protoreg, Version=1.0.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Protoreg.1.0.11\lib\net45-full\Elders.Protoreg.dll</HintPath>
-    </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
@@ -58,15 +54,12 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Cronus.1.2.17\lib\net45-full\protobuf-net.dll</HintPath>
-    </Reference>
     <Reference Include="Remotion.Linq">
       <HintPath>..\packages\Remotion.Linq.1.15.15.0\lib\portable-net45+wp80+wpa81+win\Remotion.Linq.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp">
-      <HintPath>..\packages\RestSharp.105.0.1\lib\net4\RestSharp.dll</HintPath>
+    <Reference Include="RestSharp, Version=105.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RestSharp.105.1.0\lib\net45\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -75,10 +68,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\LuceneMessageProcessorSettings.cs" />
+    <Compile Include="GG\Class1.cs" />
+    <Compile Include="Linq\SubQueryMemoryExpressionTreeVisitor.cs" />
     <Compile Include="Linq\ElasticSearchExpressionTreeVisitor.cs" />
     <Compile Include="Linq\ElasticSearchResult.cs" />
     <Compile Include="Linq\ProjectionQueryable.cs" />
     <Compile Include="Linq\ProjectionQueryFactory.cs" />
+    <Compile Include="Linq\SubQueryModelVisitor.cs" />
     <Compile Include="Linq\ProjectionQueryModelVisitor.cs" />
     <Compile Include="Linq\ProjectionExecutor.cs" />
     <Compile Include="Linq\QueryPartsAggregator.cs" />

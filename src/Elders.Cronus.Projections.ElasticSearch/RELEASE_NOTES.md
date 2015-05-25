@@ -1,3 +1,6 @@
+#### 0.3.0 - 25.05.2015
+* Version for Cronus 2.*
+
 #### 0.2.2 - 15.05.2015
 * Output the request body when error occures while indexing
 

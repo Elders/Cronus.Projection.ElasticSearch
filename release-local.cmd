@@ -32,11 +32,11 @@ echo Downloading latest version of Nuget.Core...
 echo Downloading latest version of Nyx...
 %NUGET% "install" "Nyx" "-OutputDirectory" "%TOOLS_PATH%" "-ExcludeVersion" "-Prerelease"
 
-SET TARGET="Build"
+SET TARGET="ReleaseLocal"
 
 IF NOT [%1]==[] (set TARGET="%1")
 
 SET SUMMARY="Elders.Cronus.Projections.ElasticSearch"
 SET DESCRIPTION="Elders.Cronus.Projections.ElasticSearch"
 
-%FAKE% %NYX% "target=%TARGET%"  appName=Elders.Cronus.Projections.ElasticSearch appType=nuget appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetPackageName=Cronus.Projections.ElasticSearch
+%FAKE% "build.fsx" "target=%TARGET%"  appName=Elders.Cronus.Projections.ElasticSearch appType=nuget appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetPackageName=Cronus.Projections.ElasticSearch

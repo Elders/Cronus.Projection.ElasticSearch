@@ -12,9 +12,9 @@ using Remotion.Linq.Parsing;
 
 namespace Elders.Cronus.Projections.ElasticSearch.Linq
 {
-    public class LuceneIndexExpression
+    public class SubLuceneIndexExpression
     {
-        public LuceneIndexExpression()
+        public SubLuceneIndexExpression()
         {
             ExpressionBuilder = new StringBuilder();
         }
@@ -39,18 +39,18 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
         }
     }
 
-    public class ElasticSearchExpressionTreeVisitor : ThrowingExpressionTreeVisitor
+    public class SubQueryMemoryExpressionTreeVisitor : ThrowingExpressionTreeVisitor
     {
         public static LuceneIndexExpression GetLuceneExpression(Expression linqExpression)
         {
-            var visitor = new ElasticSearchExpressionTreeVisitor();
+            var visitor = new SubQueryMemoryExpressionTreeVisitor();
             visitor.VisitExpression(linqExpression);
             return visitor.GetLuceneExpression();
         }
 
         private readonly LuceneIndexExpression luceneExpression;
 
-        private ElasticSearchExpressionTreeVisitor()
+        private SubQueryMemoryExpressionTreeVisitor()
         {
             luceneExpression = new LuceneIndexExpression();
         }
@@ -325,9 +325,9 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
 
         protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
         {
-            var asd = SubQueryModelVisitor.GenerateElasticSearchRequest(expression.QueryModel);
+            var asd = ProjectionQueryModelVisitor.GenerateElasticSearchRequest(expression.QueryModel);
             return expression;
-            //return base.VisitSubQueryExpression(expression);
+            return base.VisitSubQueryExpression(expression);
         }
 
         protected override Expression VisitTypeBinaryExpression(TypeBinaryExpression expression)
