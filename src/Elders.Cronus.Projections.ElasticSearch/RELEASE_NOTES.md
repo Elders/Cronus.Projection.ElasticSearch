@@ -1,3 +1,6 @@
+#### 0.4.0 - 26.05.2015
+* Dynamically evaluate the lucene type for each event
+
 #### 0.3.2 - 25.05.2015
 * Republish: Version for Cronus 2.*
 

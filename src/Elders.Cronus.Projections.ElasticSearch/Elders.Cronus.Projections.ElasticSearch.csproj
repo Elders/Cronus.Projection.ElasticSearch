@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Config\LuceneMessageProcessorSettings.cs" />
     <Compile Include="GG\Class1.cs" />
+    <Compile Include="ITypeEvaluator.cs" />
     <Compile Include="Linq\SubQueryMemoryExpressionTreeVisitor.cs" />
     <Compile Include="Linq\ElasticSearchExpressionTreeVisitor.cs" />
     <Compile Include="Linq\ElasticSearchResult.cs" />

@@ -8,17 +8,21 @@ using RestSharp;
 
 namespace Elders.Cronus.Projections.ElasticSearch
 {
+
     public class ProjectionApi
     {
         private readonly Json json;
 
         private readonly IRestClient client;
 
+        private readonly ITypeEvaluator typeEvaluator;
+
         public ProjectionApi(string baseUrl, IContractsRepository contractsRepository)
         {
             this.json = new Json(contractsRepository);
             this.client = new RestClient(baseUrl);
             this.client.Timeout = 5000;
+            this.typeEvaluator = new OverqualifiedNameInspector(1000);
         }
 
         public bool ConfigureMappings()
@@ -31,10 +35,10 @@ namespace Elders.Cronus.Projections.ElasticSearch
         ""number_of_replicas"": 0
     },
     ""mappings"": {
-                ""_default_"": {
-                    ""_source"": {
-                        ""enabled"": true
-                    },
+            ""_default_"": {
+                ""_source"": {
+                    ""enabled"": true
+                },
             ""dynamic_templates"": [
                 {
                     ""typecontract_store_noindex"": {
@@ -125,7 +129,8 @@ namespace Elders.Cronus.Projections.ElasticSearch
 
         public bool Index(SearchableEvent @event)
         {
-            var request = new RestRequest(@event.Event.GetType().GetContractId() + "/Event", Method.POST);
+            var eventType = typeEvaluator.Evaluate(@event.EventInternal);
+            var request = new RestRequest(@event.Event.GetType().GetContractId() + "/" + eventType, Method.POST);
 
             var body = json.Serialize(@event);
             request.AddParameter("text/json", body, ParameterType.RequestBody);
@@ -133,22 +138,13 @@ namespace Elders.Cronus.Projections.ElasticSearch
             var isSuccess = response.StatusCode == System.Net.HttpStatusCode.Created;
             if (isSuccess == false)
             {
-                string error = "Unable to index event in Projections." + Environment.NewLine +
+                string error =
+                    "Unable to index event in Projections." + Environment.NewLine +
                     "Request: " + body + Environment.NewLine +
                     "Response: " + response.StatusCode + " " + response.ErrorMessage;
                 throw new Exception(error);
             }
             return isSuccess;
-        }
-
-        public IEnumerable<SearchableEvent> MultiSearch(RestRequest request)
-        {
-            var response = client.Execute(request);
-            var responseResult = json.Deserialize<ElasticMultiSearchResult>(response.Content);
-            var unorderedResults = responseResult.Responses
-                .Where(x => x.HasResults)
-                .SelectMany(z => z.Hits.Hits.Select(x => x._source as SearchableEvent));
-            return unorderedResults;
         }
 
         public IEnumerable<SearchableEvent> MultiSearch(ElasticMultiSearchRequest elasticSearchRequest)
@@ -194,10 +190,10 @@ namespace Elders.Cronus.Projections.ElasticSearch
                 private readonly ElasticMultiSearchRequest request;
                 private ElasticMultiSearchResult response;
 
-                public Pager(ProjectionApi projection, ElasticMultiSearchRequest prm)
+                public Pager(ProjectionApi projection, ElasticMultiSearchRequest request)
                 {
                     this.projection = projection;
-                    this.request = prm;
+                    this.request = request;
                 }
 
                 public IEnumerable<SearchableEvent> Load()
