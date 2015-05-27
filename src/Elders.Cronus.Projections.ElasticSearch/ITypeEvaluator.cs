@@ -47,7 +47,9 @@ namespace Elders.Cronus.Projections.ElasticSearch
 
                 foreach (var item in withMembers)
                 {
-                    queue.Enqueue(item.Value.GetValue(obj));
+                    var val = item.Value.GetValue(obj);
+                    if (val != null)
+                        queue.Enqueue(val);
                 }
 
                 var fields = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);

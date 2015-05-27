@@ -90,7 +90,9 @@
     <Compile Include="StateBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Cronus.Projections.ElasticSearch.nuspec" />
     <None Include="packages.config" />
+    <None Include="RELEASE_NOTES.md" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

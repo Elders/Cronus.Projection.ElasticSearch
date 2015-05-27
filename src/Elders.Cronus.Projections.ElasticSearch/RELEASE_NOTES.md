@@ -1,3 +1,6 @@
+#### 0.4.1 - 27.05.2015
+* Fix bug when evaluating the lucene type
+
 #### 0.4.0 - 26.05.2015
 * Dynamically evaluate the lucene type for each event
 
