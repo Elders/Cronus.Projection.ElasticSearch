@@ -1,3 +1,6 @@
+#### 0.4.2 - 27.05.2015
+* Fix issue with unescaped URI ES type
+
 #### 0.4.1 - 27.05.2015
 * Fix bug when evaluating the lucene type
 

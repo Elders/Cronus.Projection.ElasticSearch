@@ -129,7 +129,7 @@ namespace Elders.Cronus.Projections.ElasticSearch
 
         public bool Index(SearchableEvent @event)
         {
-            var eventType = typeEvaluator.Evaluate(@event.EventInternal);
+            var eventType = Uri.EscapeDataString(typeEvaluator.Evaluate(@event.EventInternal));
             var request = new RestRequest(@event.Event.GetType().GetContractId() + "/" + eventType, Method.POST);
 
             var body = json.Serialize(@event);
