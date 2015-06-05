@@ -1,3 +1,6 @@
+#### 0.4.3 - 27.05.2015
+* reduced = false; // :)
+
 #### 0.4.2 - 27.05.2015
 * Fix issue with unescaped URI ES type
 

@@ -62,6 +62,7 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
 
         protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
         {
+            reduced = false; // :)
             luceneExpression.AttachIndex(expression.ReferencedQuerySource.ItemType.GetContractId());
             luceneExpression.Append(expression.ReferencedQuerySource.ItemName);
             return expression;
