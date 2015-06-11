@@ -106,7 +106,7 @@ namespace Elders.Cronus.Projections.ElasticSearch
 
         public bool IndexExists(Type eventType)
         {
-            var request = new RestRequest(eventType.GetContractId(), Method.GET);
+            var request = new RestRequest(eventType.GetContractId().ToLowerInvariant(), Method.GET);
             var response = client.Execute(request);
 
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
@@ -119,7 +119,7 @@ namespace Elders.Cronus.Projections.ElasticSearch
 
         public bool CreateIndex(Type eventType)
         {
-            var request = new RestRequest(eventType.GetContractId(), Method.POST);
+            var request = new RestRequest(eventType.GetContractId().ToLowerInvariant(), Method.POST);
             var body = "{\"settings\":{ \"number_of_shards\":1,\"number_of_replicas\":0}}";
 
             request.AddParameter("text/json", body, ParameterType.RequestBody);
@@ -130,7 +130,7 @@ namespace Elders.Cronus.Projections.ElasticSearch
         public bool Index(SearchableEvent @event)
         {
             var eventType = Uri.EscapeDataString(typeEvaluator.Evaluate(@event.EventInternal));
-            var request = new RestRequest(@event.Event.GetType().GetContractId() + "/" + eventType, Method.POST);
+            var request = new RestRequest(@event.Event.GetType().GetContractId().ToLowerInvariant() + "/" + eventType, Method.POST);
 
             var body = json.Serialize(@event);
             request.AddParameter("text/json", body, ParameterType.RequestBody);
@@ -203,6 +203,8 @@ namespace Elders.Cronus.Projections.ElasticSearch
                     request.AddParameter("text/json", body, ParameterType.RequestBody);
 
                     var rawResponse = projection.client.Execute(request);
+
+                    //  TODO: here the response will be null if the ES service is not available or when the content is empty
                     response = projection.json.Deserialize<ElasticMultiSearchResult>(rawResponse.Content);
 
                     if (response.Responses != null)

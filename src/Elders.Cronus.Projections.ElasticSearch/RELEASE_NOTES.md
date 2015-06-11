@@ -1,3 +1,6 @@
+#### 0.4.4 - 11.06.2015
+* Always return a result from StateBuilder and include the errors if any
+
 #### 0.4.3 - 27.05.2015
 * reduced = false; // :)
 

@@ -54,6 +54,8 @@ namespace Elders.Cronus.Projections.ElasticSearch
 
         class TypeNameSerializationBinder : SerializationBinder
         {
+            static log4net.ILog log = log4net.LogManager.GetLogger(typeof(TypeNameSerializationBinder));
+
             private readonly IContractsRepository contractRepository;
 
             public TypeNameSerializationBinder(IContractsRepository contractRepository)
@@ -78,13 +80,22 @@ namespace Elders.Cronus.Projections.ElasticSearch
 
             public override Type BindToType(string assemblyName, string typeName)
             {
-                if (assemblyName == null)
+                try
                 {
-                    Type type;
-                    if (contractRepository.TryGet(typeName, out type))
-                        return type;
+                    if (assemblyName == null)
+                    {
+                        Type type;
+                        if (contractRepository.TryGet(typeName, out type))
+                            return type;
+                    }
+                    return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
                 }
-                return Type.GetType(string.Format("{0}, {1}", typeName, assemblyName), true);
+                catch (TypeLoadException ex)
+                {
+                    string error = String.Format("Cannot resolve type '{0}'. Probably the type was renamed or an object was serialized without DataContractAttribute on first place. In order to not break the rest of the results this record will not be deserialized and default value will be returned. You should manually fix this within the search index.", typeName);
+                    log.Error(error, ex);
+                    return typeof(string);
+                }
             }
         }
     }

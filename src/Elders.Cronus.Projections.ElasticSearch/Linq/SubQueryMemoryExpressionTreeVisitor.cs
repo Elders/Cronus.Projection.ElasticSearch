@@ -325,8 +325,8 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
 
         protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
         {
-            var asd = ProjectionQueryModelVisitor.GenerateElasticSearchRequest(expression.QueryModel);
-            return expression;
+            //var asd = ProjectionQueryModelVisitor.GenerateElasticSearchRequest(expression.QueryModel);
+            //return expression;
             return base.VisitSubQueryExpression(expression);
         }
 
