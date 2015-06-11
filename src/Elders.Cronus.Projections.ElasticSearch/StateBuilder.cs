@@ -50,7 +50,7 @@ namespace Elders.Cronus.Projections.ElasticSearch
             return state;
         }
 
-        public StateBuilderResult<TState> BuildNotMatterWhat()
+        public StateBuilderResult<TState> BuildNoMatterWhat()
         {
             var result = new StateBuilderResult<TState>();
             foreach (var item in events)

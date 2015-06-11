@@ -1,3 +1,6 @@
+#### 0.4.6 - 11.06.2015
+* Fix typo
+
 #### 0.4.5 - 11.06.2015
 * The method BuildNotMatterWhat will always return result
 
