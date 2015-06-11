@@ -38,7 +38,19 @@ namespace Elders.Cronus.Projections.ElasticSearch
             return this;
         }
 
-        public StateBuilderResult<TState> Build()
+        public TState Build()
+        {
+            var result = new StateBuilderResult<TState>();
+            foreach (var item in events)
+            {
+                var t = item.GetType();
+                var handler = handlers[t];
+                state = handler(item, state);
+            }
+            return state;
+        }
+
+        public StateBuilderResult<TState> BuildNotMatterWhat()
         {
             var result = new StateBuilderResult<TState>();
             foreach (var item in events)

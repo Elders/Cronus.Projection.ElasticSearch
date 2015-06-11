@@ -1,3 +1,6 @@
+#### 0.4.5 - 11.06.2015
+* The method BuildNotMatterWhat will always return result
+
 #### 0.4.4 - 11.06.2015
 * Always return a result from StateBuilder and include the errors if any
 
