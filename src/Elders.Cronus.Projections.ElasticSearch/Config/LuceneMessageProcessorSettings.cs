@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessing;
@@ -30,7 +29,7 @@ namespace Elders.Cronus.Projections.ElasticSearch.Config
             var projectionsApi = builder.Container.Resolve<ProjectionApi>();
             Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
             {
-                IMessageProcessor processor = new MessageProcessor(messageProcessorSettings.MessageProcessorName, builder.Container);
+                IMessageProcessor processor = new MessageProcessor(messageProcessorSettings.MessageProcessorName);
                 foreach (var contract in contractsRepository.Contracts)
                 {
                     if (typeof(IEvent).IsAssignableFrom(contract))

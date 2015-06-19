@@ -1,3 +1,6 @@
+#### 0.5.0 - 19.06.2015
+* Update cronus packages
+
 #### 0.4.6 - 11.06.2015
 * Fix typo
 
