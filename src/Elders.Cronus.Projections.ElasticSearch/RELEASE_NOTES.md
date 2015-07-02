@@ -1,3 +1,6 @@
+#### 0.6.1 - 02.07.2015
+* Update packages
+
 #### 0.6.0 - 02.07.2015
 * Update DomainModeling package
 
