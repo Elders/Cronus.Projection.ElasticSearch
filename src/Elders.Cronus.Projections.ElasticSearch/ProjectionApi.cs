@@ -22,7 +22,7 @@ namespace Elders.Cronus.Projections.ElasticSearch
             this.json = new Json(contractsRepository);
             this.client = new RestClient(baseUrl);
             this.client.Timeout = 5000;
-            this.typeEvaluator = new OverqualifiedNameInspector(1000);
+            this.typeEvaluator = new OverqualifiedNameInspector();
         }
 
         public bool ConfigureMappings()
@@ -129,7 +129,7 @@ namespace Elders.Cronus.Projections.ElasticSearch
 
         public bool Index(SearchableEvent @event)
         {
-            var eventType = Uri.EscapeDataString(typeEvaluator.Evaluate(@event.EventInternal));
+            var eventType = Uri.EscapeDataString(typeEvaluator.Evaluate(@event.EventInternal, OverqualifiedNameInspector.DefaultInspectionLimit));
             var request = new RestRequest(@event.Event.GetType().GetContractId().ToLowerInvariant() + "/" + eventType, Method.POST);
 
             var body = json.Serialize(@event);

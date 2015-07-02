@@ -1,3 +1,9 @@
+#### 0.6.0 - 02.07.2015
+* Update DomainModeling package
+
+#### 0.5.1 - 29.06.2015
+* Fix bug where inspectionLimit was never reset
+
 #### 0.5.0 - 19.06.2015
 * Update cronus packages
 

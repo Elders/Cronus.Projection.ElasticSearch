@@ -8,19 +8,13 @@ namespace Elders.Cronus.Projections.ElasticSearch
 {
     public interface ITypeEvaluator
     {
-        string Evaluate(object instance);
+        string Evaluate(object instance, int inspectionLimit);
     }
 
     public class OverqualifiedNameInspector : ITypeEvaluator
     {
-        private int inspectionLimit;
-
-        public OverqualifiedNameInspector(int inspectionLimit)
-        {
-            this.inspectionLimit = inspectionLimit;
-        }
-
-        public string Evaluate(object instance)
+        public const int DefaultInspectionLimit = 1000;
+        public string Evaluate(object instance, int inspectionLimit)
         {
             string init = "";
             var queue = new Queue<object>();
