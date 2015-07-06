@@ -1,3 +1,6 @@
+#### 0.6.4 - 06.07.2015
+* Handle entity events
+
 #### 0.6.3 - 06.07.2015
 * Update packages
 
