@@ -17,13 +17,10 @@ namespace Elders.Cronus.Projections.ElasticSearch
         protected override void InternalOnNext(Message value)
         {
             dynamic handler = handlerFactory.Create();
-            var theEvent = (IEvent)value.Payload;
-            var entityEvent = theEvent as EntityEvent;
-            if (ReferenceEquals(null, entityEvent) == false)
-                theEvent = entityEvent;
+
             var se = new SearchableEvent()
             {
-                Event = theEvent,
+                Event = (IEvent)value.Payload,
                 AggregateId = value.Headers["ar_id"],
                 Revision = int.Parse(value.Headers["ar_revision"]),
                 Timestamp = DateTime.Parse(value.Headers["publish_timestamp"]),
