@@ -168,7 +168,7 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
         {
             var aggregateIdProperty = expression.Member as PropertyInfo;
             var canReduce = aggregateIdProperty != null && reduced == false &&
-                typeof(IAggregateRootId).IsAssignableFrom(aggregateIdProperty.PropertyType) && aggregateIdProperty.PropertyType.IsInterface == false;
+                typeof(IBlobId).IsAssignableFrom(aggregateIdProperty.PropertyType) && aggregateIdProperty.PropertyType.IsInterface == false;
             reduced = true;
             if (canReduce)
                 return VisitExpression(new ArExpression(expression, aggregateIdProperty.PropertyType));
@@ -264,9 +264,9 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
 
         protected override Expression VisitConstantExpression(ConstantExpression expression)
         {
-            if (typeof(IAggregateRootId).IsAssignableFrom(expression.Type))
+            if (typeof(IBlobId).IsAssignableFrom(expression.Type))
             {
-                var aggregateId = expression.Value as IAggregateRootId;
+                var aggregateId = expression.Value as IBlobId;
                 var aggregateIdAsBase64String = System.Convert.ToBase64String(aggregateId.RawId);
                 luceneExpression.Append(string.Format("(\"{0}\")", aggregateIdAsBase64String));
             }
@@ -350,7 +350,7 @@ namespace Elders.Cronus.Projections.ElasticSearch.Linq
                     var memberExp = expression.Operand as MemberExpression;
                     if (memberExp != null && reduced == false)
                     {
-                        if (typeof(IAggregateRootId).IsAssignableFrom(expression.Type))
+                        if (typeof(IBlobId).IsAssignableFrom(expression.Type))
                             VisitExpression(new ArExpression(expression.Operand, expression.Type));
                         return expression;
                     }
